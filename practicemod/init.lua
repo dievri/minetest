@@ -1,13 +1,36 @@
 -- On world creating, create platform 10x10 starting from (1,0,1) to (10,0,10)
-minetest.register_on_generated(function(minp, maxp, blockseed)
-	for i=1, 10 do 
-		for j=1, 10 do
-			minetest.add_node({x = i, y = 0, z = j}, {name="default:dirt"})
-		end
+-- c_dirt = minetest.get_content_id("default:cobble")
+minetest.register_on_generated(function(minp, maxp,  blockseed)
+	local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
+	local data = vm:get_data()
+	local area = VoxelArea:new{MinEdge = emin, MaxEdge = emax}
+	
+	for i in area:iter(
+		0, 0, 0,
+		10, 0, 10
+	) do
+	 
+		data[i] = {name="default:dirt"}
+		
 	end
 
+	-- Return the changed nodes data, fix light and change map
+	vm:set_data(data)
+	vm:write_to_map()
 end)
 
+
+
+
+
+---	for i=1, 10 do 
+--		for j=1, 10 do
+--			minetest.add_node({x = i, y = 0, z = j}, {name="default:dirt"})
+--		end
+--	end
+--
+--end)
+--
 
 
 -- On join player will be placed at (10, 10, 10)
