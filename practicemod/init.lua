@@ -14,6 +14,9 @@ minetest.register_entity("practicemod:simple", {
     is_visible = true,
     makes_footstep_sound = false
 	} 
+    on_activate = function(self, staticdata, dtime_s)
+        self.object:set_acceleration(0,-10,0)		
+    end,
 })
 
 minetest.register_on_generated(function(minp, maxp,  blockseed)
