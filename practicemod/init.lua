@@ -20,6 +20,12 @@ minetest.register_entity("practicemod:simple", {
 	-- called when spawned, makes entity fall
 	on_activate = function(self, staticdata, dtime_s)
 		self.object:set_acceleration({x = 0, y = -10, z = 0})
+	end, 
+	
+	-- send message to everyone with hitten entity name
+	on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir)
+		local attr = self.get_nametag_attributes()
+		minetest.chat_send_all("Hello from entity")
 	end
 })
 
@@ -67,7 +73,8 @@ minetest.register_on_joinplayer(function(player)
 	for line in io.lines(path) do
 		local posx, posz = getvalue(grid, 10)
 		local entity = minetest.add_entity({x = posx,  y = math.random(1, 50), z = posz}, "practicemod:simple")
-			  entity:set_nametag_attributes({text = line})
+			  entity:set_nametag_attributes({color = "black", text = line})
+			  entity:set_armor_groups({immortal=0})
 	end
 	
 	-- instantiate player
@@ -76,7 +83,7 @@ minetest.register_on_joinplayer(function(player)
 	-- put test entity near player
 	local test = minetest.add_entity({x = 5, y = 5, z = 15}, "practicemod:simple")
 		  test:set_acceleration({x = 0, y = 0, z = 0})
-	      test:set_nametag_attributes({text = "test"})
+	      test:set_nametag_attributes({color = "black", text = "test"})
 end)
 
 	
