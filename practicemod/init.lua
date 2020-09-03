@@ -1,4 +1,5 @@
-local os = require 'os'
+local lfs = require 'lfs'
+
 
 -- load external functions
 dofile(minetest.get_modpath("practicemod") .. "/getvalue.lua")
@@ -72,19 +73,26 @@ minetest.register_on_joinplayer(function(player)
 
 	-- process file line by line and create entity with a given name in file on a random position 
 	local path = minetest.get_modpath("practicemod") .. "/countries"
-	local f = io.popen("ls " .. path, "r")
-	for entry in f:lines() do
-		local posx, posz = getvalue(grid, 10)
-		local entity = minetest.add_entity({x = posx,  y = math.random(1, 50), z = posz}, "practicemod:simple")
-		-- read file content
-		local file = io.open(path .. "/" .. entry)
-		local file_content = file:read("*all") 
-		entity:set_nametag_attributes({color = "black", text = entry})
-		local ent = entity:get_luaentity() 
-		ent.info = file_content
-		entity:set_armor_groups({immortal=0})
-		file:close()
+	-- traverse all files at given path	
+	for file in lfs.dir(path) do
+		if file ~= '.' and file ~= '..' then
+			local posx, posz = getvalue(grid, 10)
+			local entity = minetest.add_entity({x = posx,  y = math.random(1, 50), z = posz}, "practicemod:simple")
+			-- read file content
+			fullpath = path .. '/' .. file
+			local attr = lfs.attributes(fullpath)
+			if attr.mode ~= "directory" then
+				local currentfile = io.open(fullpath)
+				local content = currentfile:read("*all")
+				entity:set_nametag_attributes({color = "black", text = entry})
+				local ent = entity:get_luaentity() 
+				ent.info = content
+				entity:set_armor_groups({immortal=0})
+				currentfile:close()
+			end
 	end
+end
+
 	
 	-- instantiate player
 	player:set_pos({ x = 10, y = 10, z = 10})
