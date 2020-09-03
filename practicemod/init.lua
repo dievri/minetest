@@ -1,3 +1,5 @@
+local os = require 'os'
+
 -- load external functions
 dofile(minetest.get_modpath("practicemod") .. "/getvalue.lua")
 
@@ -24,8 +26,8 @@ minetest.register_entity("practicemod:simple", {
 	
 	-- send message to everyone with hitten entity name
 	on_punch = function(self, puncher, time_from_last_punch, tool_capabilities, dir)
-		local attr = self.get_nametag_attributes()
-		minetest.chat_send_all("Hello from entity")
+		local attr = self.object:get_luaentity().info
+		minetest.chat_send_all("Hello from " .. attr)
 	end
 })
 
@@ -69,12 +71,19 @@ minetest.register_on_joinplayer(function(player)
 	end	
 
 	-- process file line by line and create entity with a given name in file on a random position 
-	local path = minetest.get_modpath("practicemod") .. "/entity.txt"
-	for line in io.lines(path) do
+	local path = minetest.get_modpath("practicemod") .. "/countries"
+	local f = io.popen("ls " .. path, "r")
+	for entry in f:lines() do
 		local posx, posz = getvalue(grid, 10)
 		local entity = minetest.add_entity({x = posx,  y = math.random(1, 50), z = posz}, "practicemod:simple")
-			  entity:set_nametag_attributes({color = "black", text = line})
-			  entity:set_armor_groups({immortal=0})
+		-- read file content
+		local file = io.open(path .. "/" .. entry)
+		local file_content = file:read("*all") 
+		entity:set_nametag_attributes({color = "black", text = entry})
+		local ent = entity:get_luaentity() 
+		ent.info = file_content
+		entity:set_armor_groups({immortal=0})
+		file:close()
 	end
 	
 	-- instantiate player
